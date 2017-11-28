@@ -38,17 +38,74 @@ var User = mongoose.model('user', mongoose.Schema({
     role     : { type: String, required: true }
 }));
 
-/*
-app.get('/example', protected, function(req, res){ res.send('example'); });
 
-function protected(req, res, next) {
-    if( req.session.user.role === 'someRole' ) {
-        // do something and call next()
+// app.get('/example', protected, function(req, res){ res.send('example'); });
+///////////////////////////////////////////////////////////////////////////////////////////
+function allowedInCafeteria(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+     if( user.role !== 'visitor') {
+        console.log('welcome to Cafeteria')
+        next()
     } else {
-        // send down a forbidden response (status code 403)
-    }
+        res.redirect('/jail')// send down a forbidden response (status code 403)
+    }   
+})
+
 }
-*/
+
+///////////////////////////////////////////////////////////////////////////////////////////
+function allowedInLobbyOrVisitorsLounge(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+     if( user.role !== 'prisoner') {
+        console.log('welcome to Lobby or Visitors Lounge')
+        next()
+    } else {
+        res.redirect('/jail')// send down a forbidden response (status code 403)
+    }   
+})
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+function allowedInWardensOffice(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+     if( user.role === 'warden') {
+        console.log('welcome to Wardens Office')
+        next()
+    } else {
+        res.redirect('/jail')// send down a forbidden response (status code 403)
+    }   
+})
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+function allowedInCellE(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+        name=user.username
+     if( name === 'eve'|| name === 'alice' || name === 'bob') {
+        console.log('welcome to Cell E')
+        next()
+    } else {
+        res.redirect('/jail')// send down a forbidden response (status code 403)
+    }   
+})
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+function allowedInCellM(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+        name=user.username
+     if( name === 'mallory'|| name === 'alice' || name === 'bob') {
+        console.log('welcome to Cell E')
+        next()
+    } else {
+        res.redirect('/jail')// send down a forbidden response (status code 403)
+    }   
+})
+
+}
 
 app.get('/', function(req, res){
     res.sendFile('./html/login.html', {root:'./public'});
@@ -56,22 +113,22 @@ app.get('/', function(req, res){
 app.get('/jail', function(req, res, next){
     res.sendFile('./html/jail.html', {root:'./public'});
 });
-app.get('/lobby', function(req, res, next){
+app.get('/lobby', allowedInLobbyOrVisitorsLounge, function(req, res, next){
     res.sendFile('./html/lobby.html', {root:'./public'});
 });
-app.get('/visitors-lounge', function(req, res, next){
+app.get('/visitors-lounge', allowedInLobbyOrVisitorsLounge, function(req, res, next){
     res.sendFile('./html/visitors-lounge.html', {root:'./public'});
 });
-app.get('/cafeteria', function(req, res, next){
+app.get('/cafeteria', allowedInCafeteria, function(req, res, next){
     res.sendFile('./html/cafeteria.html', {root:'./public'});
 });
-app.get('/wardens-office', function(req, res, next){
+app.get('/wardens-office', allowedInWardensOffice, function(req, res, next){
     res.sendFile('./html/wardens-office.html', {root:'./public'});
 });
-app.get('/cell-e', function(req, res, next){
+app.get('/cell-e', allowedInCellE, function(req, res, next){
     res.sendFile('./html/cell-e.html', {root:'./public'});
 });
-app.get('/cell-m', function(req, res, next){
+app.get('/cell-m',allowedInCellM, function(req, res, next){
     res.sendFile('./html/cell-m.html', {root:'./public'});
 });
 
